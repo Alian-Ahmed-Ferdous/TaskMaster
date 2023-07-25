@@ -1,4 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useContext, useRef, useState } from 'react';
+import { TodoContext } from '../../context/TodoContext';
+import { Todo } from '../../model/model';
 
 interface TodoData {
   todo: string;
@@ -6,14 +8,11 @@ interface TodoData {
   urgent: boolean;
 }
 
-interface Props {
-  todo: TodoData;
-  setTodo: React.Dispatch<React.SetStateAction<TodoData>>;
-  handleAdd: (e: React.FormEvent) => void;
-}
-
-export const InputField: React.FC<Props> = ({ todo, setTodo, handleAdd }) => {
+export const InputField: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const { dispatch } = useContext(TodoContext);
+  const [todo, setTodo] = useState<TodoData>({ todo: '', important: false, urgent: false });
 
   const handleImportantToggle = () => {
     setTodo((prevTodo) => ({
@@ -27,6 +26,24 @@ export const InputField: React.FC<Props> = ({ todo, setTodo, handleAdd }) => {
       ...prevTodo,
       urgent: !prevTodo.urgent,
     }));
+  };
+
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (todo) {
+      const newTodo: Todo = {
+        id: Date.now(),
+        todo: todo.todo,
+        isDone: false,
+        important: todo.important,
+        urgent: todo.urgent,
+      };
+
+      dispatch({ type: 'ADD_TODO', todo: newTodo });
+    }
+
+    setTodo({ todo: '', important: false, urgent: false });
   };
 
   return (

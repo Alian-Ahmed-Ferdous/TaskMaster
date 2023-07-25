@@ -1,16 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Todo } from '../../model/model';
 import { AiFillDelete, AiFillEdit } from 'react-icons/ai';
 import { MdDone } from 'react-icons/md';
+import { TodoContext } from '../../context/TodoContext';
 
 interface Props {
   todo: Todo;
-  todos: Todo[];
-  setTodos: React.Dispatch<React.SetStateAction<Todo[]>>;
   color: String;
 }
 
-const SingleTodo: React.FC<Props> = ({ todo, todos, setTodos, color }) => {
+const SingleTodo: React.FC<Props> = ({ todo, color }) => {
   const [edit, setEdit] = useState<boolean>(false);
   const [editTodo, setEditTodo] = useState<string>(todo.todo);
 
@@ -19,22 +18,26 @@ const SingleTodo: React.FC<Props> = ({ todo, todos, setTodos, color }) => {
     inputRef.current?.focus();
   }, [edit]);
 
-  const handleEdit = (e: React.FormEvent, id: number) => {
+  const { dispatch } = useContext(TodoContext);
+
+  const handleEdit = (id: number) => (e: React.FormEvent) => {
     e.preventDefault();
-    setTodos(todos.map((todo) => (todo.id === id ? { ...todo, todo: editTodo } : todo)));
+    const editedTodo: Todo = { ...todo, todo: editTodo };
+    dispatch({ type: 'EDIT_TODO', id: id, todo: editedTodo });
     setEdit(false);
   };
 
-  const handleDelete = (id: number) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
+  const handleDelete = () => {
+    dispatch({ type: 'DELETE_TODO', id: todo.id });
   };
 
-  const handleDone = (id: number) => {
-    setTodos(todos.map((todo) => (todo.id === id ? { ...todo, isDone: !todo.isDone } : todo)));
+  const handleDone = () => {
+    const updatedTodo: Todo = { ...todo, isDone: !todo.isDone };
+    dispatch({ type: 'EDIT_TODO', id: todo.id, todo: updatedTodo });
   };
 
   return (
-    <form className={`flex h-15 border-none rounded-md p-3 mx-4 my-1 bg-${color}-200 text-black hover:bg-${color}-100 hover:shadow-sm hover:shadow-${color}-50`} onSubmit={(e) => handleEdit(e, todo.id)}>
+    <form className={`flex h-15 border-none rounded-md p-3 mx-4 my-1 bg-${color}-300 text-black hover:bg-${color}-500 hover:shadow-sm hover:shadow-${color}-700`} onSubmit={handleEdit(todo.id)}>
       {edit ? (
         <input
           value={editTodo}
@@ -58,10 +61,10 @@ const SingleTodo: React.FC<Props> = ({ todo, todos, setTodos, color }) => {
         >
           <AiFillEdit className="text-sm" />
         </span>
-        <span className="flex ml-2 text-xl cursor-pointer" onClick={() => handleDelete(todo.id)}>
+        <span className="flex ml-2 text-xl cursor-pointer" onClick={handleDelete}>
           <AiFillDelete className="text-sm" />
         </span>
-        <span className="flex ml-2 text-xl cursor-pointer" onClick={() => handleDone(todo.id)}>
+        <span className="flex ml-2 text-xl cursor-pointer" onClick={() => handleDone()}>
           <MdDone className="text-sm" />
         </span>
       </div>
