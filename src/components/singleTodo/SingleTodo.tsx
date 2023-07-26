@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Todo } from '../../model/model';
 import { AiFillDelete, AiFillEdit } from 'react-icons/ai';
 import { MdDone } from 'react-icons/md';
@@ -6,24 +6,19 @@ import { TodoContext } from '../../context/TodoContext';
 
 interface Props {
   todo: Todo;
-  color: String;
+  color: string;
 }
 
 const SingleTodo: React.FC<Props> = ({ todo, color }) => {
-  const [edit, setEdit] = useState<boolean>(false);
-  const [editTodo, setEditTodo] = useState<string>(todo.todo);
-
-  const inputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, [edit]);
-
+  const [edit, setEdit] = useState(false);
+  const [editTodo, setEditTodo] = useState(todo.todo);
+  const inputRef = React.useRef<HTMLInputElement>(null);
   const { dispatch } = useContext(TodoContext);
 
-  const handleEdit = (id: number) => (e: React.FormEvent) => {
+  const handleEdit = (e: React.FormEvent) => {
     e.preventDefault();
     const editedTodo: Todo = { ...todo, todo: editTodo };
-    dispatch({ type: 'EDIT_TODO', id: id, todo: editedTodo });
+    dispatch({ type: 'EDIT_TODO', id: todo.id, todo: editedTodo });
     setEdit(false);
   };
 
@@ -37,7 +32,7 @@ const SingleTodo: React.FC<Props> = ({ todo, color }) => {
   };
 
   return (
-    <form className={`flex h-15 border-none rounded-md p-3 mx-4 my-1 bg-${color}-300 text-black hover:bg-${color}-500 hover:shadow-sm hover:shadow-${color}-700`} onSubmit={handleEdit(todo.id)}>
+    <form className={`flex h-15 border-none rounded-md p-3 mx-4 my-1 bg-${color}-300 text-black hover:bg-${color}-500 hover:shadow-sm hover:shadow-${color}-700`} onSubmit={handleEdit}>
       {edit ? (
         <input
           value={editTodo}
@@ -56,6 +51,7 @@ const SingleTodo: React.FC<Props> = ({ todo, color }) => {
           onClick={() => {
             if (!edit && !todo.isDone) {
               setEdit(!edit);
+              inputRef.current?.focus();
             }
           }}
         >
@@ -64,7 +60,7 @@ const SingleTodo: React.FC<Props> = ({ todo, color }) => {
         <span className="flex ml-2 text-xl cursor-pointer" onClick={handleDelete}>
           <AiFillDelete className="text-sm" />
         </span>
-        <span className="flex ml-2 text-xl cursor-pointer" onClick={() => handleDone()}>
+        <span className="flex ml-2 text-xl cursor-pointer" onClick={handleDone}>
           <MdDone className="text-sm" />
         </span>
       </div>

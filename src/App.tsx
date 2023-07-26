@@ -1,14 +1,7 @@
-import React, { useState } from 'react'
+import React from 'react'
 import "../src/App.css"
 import { InputField } from './components/InputField/InputField'
-import { Todo } from './model/model'
 import TodoList from './components/TodoList/TodoList'
-
-interface todoData {
-  todo: string;
-  important: boolean;
-  urgent: boolean;
-}
 
 const App: React.FC = () => {
   return (
